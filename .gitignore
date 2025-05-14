@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+platform_env/
+
+# Mac / Linux
+*.swp
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Environnement de développement
+*.env
+.env.*
+
+# Flask-Migrate / Alembic
+migrations/
+
+# SQLite database (si tu l’avais testé)
+*.db
+*.sqlite3
+
+# IDEs et éditeurs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Logs et fichiers temporaires
+*.log
+tmp/
+*.tmp
+
+# Uploads / fichiers générés
+uploads/
+club_documents/
+
+# Fichiers de configuration locale
+instance/
+
+# JetBrains
+*.iml

@@ -6,6 +6,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
     
     id = db.Column(db.Integer, primary_key=True)
+    payment_code = db.Column(db.String(20), unique=True, nullable=True)
     first_name    = db.Column(db.String(64), nullable=False)
     last_name     = db.Column(db.String(64), nullable=False)
     username      = db.Column(db.String(64), unique=True, nullable=False)

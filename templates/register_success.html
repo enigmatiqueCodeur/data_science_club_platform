@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Inscription réussie{% endblock %}
+
+{% block content %}
+<div class="text-center">
+  <h2 class="mb-4">Inscription prise en compte !</h2>
+  <p>Merci, {{ form.first_name.data }} {{ form.last_name.data }}. Votre code d’adhésion est :</p>
+  <h3 class="text-primary">{{ payment_code }}</h3>
+  <p class="mt-3">
+    Veuillez régler vos frais d’adhésion en mentionnant ce code.<br>
+    Une fois le paiement validé, votre compte sera activé et vous pourrez vous connecter.
+  </p>
+  <a href="{{ url_for('auth.login') }}" class="btn btn-success mt-3">Aller à la connexion</a>
+</div>
+{% endblock %}

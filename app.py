@@ -27,5 +27,8 @@ def create_app():
     from routes.admin import bp as admin_bp
     app.register_blueprint(admin_bp)
 
+    from routes.resources import bp as resources_bp
+    app.register_blueprint(resources_bp)
+
 
     return app

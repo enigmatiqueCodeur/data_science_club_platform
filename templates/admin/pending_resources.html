@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Ressources en attente – Admin{% endblock %}
+
+{% block content %}
+  <h2>Ressources en attente de validation</h2>
+  {% if resources %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Catégorie</th>
+          <th>Soumis par (ID)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for res in resources %}
+        <tr>
+          <td>{{ res.title }}</td>
+          <td>{{ res.category.name }}</td>
+          <td>{{ res.submitted_by or 'N/A' }}</td>
+          <td>
+            <form method="post" action="{{ url_for('admin.validate_resource', res_id=res.id) }}" style="display:inline;">
+              <button class="btn btn-sm btn-success">Valider</button>
+            </form>
+            <form method="post" action="{{ url_for('admin.reject_resource', res_id=res.id) }}" style="display:inline;">
+              <button class="btn btn-sm btn-danger">Rejeter</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucune ressource en attente.</p>
+  {% endif %}
+{% endblock %}

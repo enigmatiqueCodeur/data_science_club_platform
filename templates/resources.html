@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Ressources – ENSEA Data Science Club{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Ressources</h2>
+
+  <!-- Filtre & Recherche -->
+  <form method="get" action="{{ url_for('resources.list_resources') }}" class="row g-2 align-items-center mb-4">
+    <div class="col-md-4">
+      <input
+        type="text"
+        name="q"
+        value="{{ q }}"
+        class="form-control"
+        placeholder="Rechercher un titre…"
+      >
+    </div>
+    <div class="col-md-3">
+      <select name="cat" class="form-select">
+        <option value="">Toutes catégories</option>
+        {% for c in categories %}
+          <option value="{{ c.id }}" {% if c.id == cat %}selected{% endif %}>
+            {{ c.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-outline-primary">Filtrer</button>
+    </div>
+
+    {% if current_user.role == 'admin' %}
+      <div class="col-auto ms-auto">
+        <a href="{{ url_for('resources.upload_resource') }}" class="btn btn-primary">
+          + Ajouter une ressource
+        </a>
+      </div>
+    {% endif %}
+  </form>
+
+  <!-- Table des ressources -->
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Titre</th>
+        <th>Description</th>
+        <th>Catégorie</th>
+        <th>Ajouté le</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for res in resources %}
+        <tr>
+          <td>{{ res.title }}</td>
+          <td>{{ res.description[:50] ~ ('…' if res.description|length > 50 else '') }}</td>
+          <td>{{ res.category.name }}</td>
+          <td>{{ res.uploaded_at.strftime('%d/%m/%Y') }}</td>
+          <td class="text-center">
+            <a
+              href="{{ url_for('resources.download', res_id=res.id) }}"
+              class="btn btn-sm btn-outline-primary"
+            >Télécharger</a>
+
+            {% if current_user.role == 'admin' %}
+              <a
+                href="{{ url_for('resources.edit_resource', res_id=res.id) }}"
+                class="btn btn-sm btn-outline-secondary"
+              >Modifier</a>
+
+              <form
+                method="post"
+                action="{{ url_for('resources.delete_resource', res_id=res.id) }}"
+                style="display:inline;"
+                onsubmit="return confirm('Supprimer définitivement cette ressource ?');"
+              >
+                {{ csrf_token() }}
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  Supprimer
+                </button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5" class="text-center py-4">
+            Aucune ressource trouvée.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

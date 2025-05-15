@@ -1,32 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Validation des adhésions{% endblock %}
+{% block title %}Valider les membres – Admin{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Validation des adhésions</h2>
-{% if pending %}
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Prénom Nom</th><th>Username</th><th>Email</th><th>Code</th><th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for user in pending %}
-        <tr>
-          <td>{{ user.first_name }} {{ user.last_name }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.payment_code }}</td>
-          <td>
-            <form action="{{ url_for('admin.validate_user', user_id=user.id) }}" method="post">
-              <button class="btn btn-sm btn-success">Valider</button>
-            </form>
-          </td>
-        </tr>
+  <h2>Comptes en attente de validation</h2>
+  {% if pending %}
+    <ul class="list-group">
+      {% for u in pending %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ u.first_name }} {{ u.last_name }} ({{ u.username }})
+          <form method="post" action="{{ url_for('admin.validate_user', user_id=u.id) }}">
+            <button class="btn btn-sm btn-success">Valider</button>
+          </form>
+        </li>
       {% endfor %}
-    </tbody>
-  </table>
-{% else %}
-  <p>Aucun utilisateur en attente.</p>
-{% endif %}
+    </ul>
+  {% else %}
+    <p>Aucun compte en attente.</p>
+  {% endif %}
 {% endblock %}

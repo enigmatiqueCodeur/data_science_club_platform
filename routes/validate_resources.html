@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Valider les ressources{% endblock %}
+{% block content %}
+  <h2>Ressources en attente</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th><th>Titre</th><th>Catégorie</th>
+        <th>Proposé par</th><th>Date</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for res in pending %}
+      <tr>
+        <td>{{ res.id }}</td>
+        <td>{{ res.title }}</td>
+        <td>{{ res.category.name }}</td>
+        <td>{{ res.submitter.username }}</td>
+        <td>{{ res.uploaded_at.strftime('%Y-%m-%d') }}</td>
+        <td>
+          <form action="{{ url_for('admin.approve_resource', res_id=res.id) }}"
+                method="post" style="display:inline-block">
+            <button class="btn btn-sm btn-success">Approuver</button>
+          </form>
+          <form action="{{ url_for('admin.reject_resource', res_id=res.id) }}"
+                method="post" style="display:inline-block">
+            <button class="btn btn-sm btn-danger">Rejeter</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">Aucune ressource en attente.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

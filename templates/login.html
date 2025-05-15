@@ -1,25 +1,78 @@
 {% extends "base.html" %}
 {% block title %}Connexion – ENSEA Data Science Club{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-6">
-    <h2 class="mb-4">Connexion</h2>
-    <form method="post">
-      {{ form.hidden_tag() }}
-      <div class="mb-3">
-        {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-control") }}
-      </div>
-      <div class="mb-3">
-        {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-control") }}
-      </div>
-      <div class="form-check mb-3">
-        {{ form.remember_me(class="form-check-input") }}
-        {{ form.remember_me.label(class="form-check-label") }}
-      </div>
-      <button type="submit" class="btn btn-primary">Se connecter</button>
-    </form>
+  <div class="col-md-4">
+
+    <!-- === ÉTAPE 1 : saisie de l'email === -->
+    <div id="step-email">
+      <h4 class="mb-3">Entrez votre email</h4>
+      <input type="email" id="email" class="form-control mb-2" placeholder="email@exemple.com">
+      <div id="error-email" class="text-danger mb-2"></div>
+      <button id="btn-next" class="btn btn-primary">Suivant</button>
+    </div>
+
+    <!-- === ÉTAPE 2 : saisie du mot de passe === -->
+    <div id="step-password" style="display: none;">
+      <h4 id="welcome" class="mb-3"></h4>
+      <input type="password" id="password" class="form-control mb-2" placeholder="Votre mot de passe">
+      <div id="error-login" class="text-danger mb-2"></div>
+      <button id="btn-login" class="btn btn-success">Se connecter</button>
+    </div>
+
   </div>
 </div>
+
+<script>
+  // 1) Vérifier l'email côté serveur
+  document.getElementById('btn-next').addEventListener('click', async e => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    document.getElementById('error-email').innerText = '';
+    if (!email) {
+      return document.getElementById('error-email').innerText = 'Veuillez entrer votre email.';
+    }
+    const res = await fetch('{{ url_for("auth.check_email") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email})
+    });
+    const {exists, status, role} = await res.json();
+    if (!exists) {
+      document.getElementById('error-email').innerText = "Aucun compte associé.";
+    } else if (status !== 'active') {
+      document.getElementById('error-email').innerText = "Votre compte n'est pas encore activé.";
+    } else {
+      // passer à l'étape mot de passe
+      document.getElementById('welcome').innerText =
+        role === 'admin' ? "Espace administrateur" : "Bienvenue";
+      document.getElementById('step-email').style.display = 'none';
+      document.getElementById('step-password').style.display = 'block';
+    }
+  });
+
+  // 2) Poster le mot de passe et récupérer la redirection
+  document.getElementById('btn-login').addEventListener('click', async e => {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    document.getElementById('error-login').innerText = '';
+    if (!password) {
+      return document.getElementById('error-login').innerText = 'Veuillez entrer votre mot de passe.';
+    }
+    const res = await fetch('{{ url_for("auth.login_json") }}', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email, password})
+    });
+    const json = await res.json();
+    if (!json.success) {
+      document.getElementById('error-login').innerText = json.message;
+    } else {
+      // redirection finale
+      window.location.href = json.redirect;
+    }
+  });
+</script>
 {% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin – ENSEA Data Science Club{% endblock %}
+
+{% block content %}
+  <h1>Tableau de bord Admin</h1>
+  <ul>
+    <li><a href="{{ url_for('admin.validate_users') }}">Valider les nouveaux membres</a></li>
+    <li><a href="{{ url_for('admin.pending_resources') }}">Valider les ressources soumises</a></li>
+  </ul>
+{% endblock %}

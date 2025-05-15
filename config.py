@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 # Charge .env
 load_dotenv()
 
@@ -20,3 +23,6 @@ class Config:
         SQLALCHEMY_DATABASE_URI = f"postgresql://{user}@{host}:{port}/{dbname}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads', 'resources')
+    

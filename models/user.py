@@ -1,6 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import db, login
+from sqlalchemy import Text
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -11,9 +12,19 @@ class User(UserMixin, db.Model):
     last_name     = db.Column(db.String(64), nullable=False)
     username      = db.Column(db.String(64), unique=True, nullable=False)
     email         = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+
+    password_hash = db.Column(Text, nullable=False)
     role          = db.Column(db.String(10), default='member')
     status        = db.Column(db.String(10), default='pending')
+    points         = db.Column(db.Integer, default=0, nullable=False)   # <-- nouveau
+
+    # Relations
+    uploaded_resources  = db.relationship('Resource',
+                                          back_populates='uploader',
+                                          foreign_keys='Resource.uploaded_by')
+    proposed_resources  = db.relationship('Resource',
+                                          back_populates='submitter',
+                                          foreign_keys='Resource.submitted_by')
 
 
     def set_password(self, password):

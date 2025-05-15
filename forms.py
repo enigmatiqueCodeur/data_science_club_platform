@@ -1,6 +1,17 @@
+# forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import TextAreaField, SelectField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
+from flask_wtf.file import FileAllowed, FileRequired
+
+# --- Extensions autorisées (formats Data Science) ---
+ALLOWED_EXTENSIONS = {
+    'pdf', 'mp4', 'mov', 'csv', 'tsv', 'xlsx', 'ipynb',
+    'dta', 'sav', 'sas7bdat', 'rdata', 'json','xml', 'txt',
+    'zip', 'tar.gz', 'rar', 'parquet', 'feather','py', 'r',
+    'png', 'pptx', 'ppt', 'jpeg', 'xls', 'do'
+}
 
 class RegistrationForm(FlaskForm):
     first_name = StringField(
@@ -34,3 +45,27 @@ class LoginForm(FlaskForm):
     password = PasswordField('Mot de passe', validators=[DataRequired()])
     remember_me = BooleanField('Se souvenir de moi')
     submit = SubmitField('Connexion')
+
+class ResourceForm(FlaskForm):
+    title = StringField(
+        'Titre',
+        validators=[DataRequired(), Length(max=128)]
+    )
+    description = TextAreaField('Description (facultatif)')
+    category = SelectField(
+        'Catégorie',
+        coerce=int,
+        validators=[DataRequired()]
+    )
+    file = FileField(
+        'Fichier (PDF, vidéo, dataset, notebook, etc.)',
+        validators=[
+            FileRequired(),
+            FileAllowed(
+                ALLOWED_EXTENSIONS,
+                'Extension non autorisée ! Choisissez un fichier parmi : '
+                + ', '.join(sorted(ALLOWED_EXTENSIONS))
+            )
+        ]
+    )
+    submit = SubmitField('Ajouter la ressource')

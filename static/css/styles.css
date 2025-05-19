@@ -1,0 +1,172 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;800&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  /* Palette Data Science */
+  --blue-dark:   #0d1b2a;
+  --blue:        #1b263b;
+  --blue-light:  #415a77;
+  --accent:      #e0e1dd;
+  --green:       #28a745;
+  --yellow:      #ffc107;
+  --gray-light:  #f0f0f0;
+  --transition:  0.3s;
+}
+
+/* Base */
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--accent);
+  color: var(--blue-dark);
+  line-height: 1.6;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Exo 2', sans-serif;
+  color: var(--blue-dark);
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform var(--transition);
+}
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* Links */
+a {
+  color: var(--blue);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--blue-light);
+  text-decoration: underline;
+}
+
+/* Navbar */
+.navbar-dark {
+  background-color: var(--blue) !important;
+}
+.navbar-brand, .nav-link {
+  font-weight: 600;
+}
+.navbar-brand img {
+  transition: transform var(--transition);
+}
+.navbar-brand img:hover {
+  transform: scale(1.1);
+}
+
+/* Tabs */
+.nav-tabs .nav-link {
+  color: var(--blue-dark);
+  font-weight: 500;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-tabs .nav-link.active {
+  background-color: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--blue-dark);
+  border-color: var(--blue-dark);
+  font-weight: 600;
+  transition: background var(--transition), border-color var(--transition);
+}
+.btn-primary:hover {
+  background-color: var(--blue-light);
+  border-color: var(--blue-light);
+}
+.btn-outline-primary {
+  color: var(--blue-dark);
+  border-color: var(--blue-dark);
+}
+.btn-outline-primary:hover {
+  background-color: var(--blue-dark);
+  color: white;
+}
+
+/* Secondary Buttons */
+.btn-outline-secondary {
+  color: var(--blue-light);
+  border-color: var(--blue-light);
+}
+.btn-outline-secondary:hover {
+  background-color: var(--blue-light);
+  color: white;
+}
+
+/* Footer */
+footer {
+  background-color: var(--accent);
+  color: var(--blue-dark);
+}
+
+/* Avatars */
+.rounded-circle {
+  border: 2px solid var(--accent);
+  transition: transform var(--transition);
+}
+.rounded-circle:hover {
+  transform: scale(1.05);
+}
+
+/* XP Points */
+.xp-points {
+  font-weight: bold;
+  color: var(--yellow);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.2); }
+}
+
+/* Forum recent posts */
+.post-recent {
+  border-left: 4px solid var(--green);
+}
+
+/* Suggestion box (mentions) */
+.suggestion-box {
+  background: white;
+  border: 1px solid var(--gray-light);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1100;
+}
+.suggestion-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.suggestion-item:hover {
+  background: var(--gray-light);
+}
+
+/* Modal styling */
+.modal-content {
+  border-radius: 8px;
+}
+.modal-body img {
+  border-radius: 4px;
+}
+
+/* Utility */
+.text-primary {
+  color: var(--blue-dark) !important;
+}
+.text-success {
+  color: var(--green) !important;
+}

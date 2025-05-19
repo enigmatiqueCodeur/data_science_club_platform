@@ -1,0 +1,53 @@
+{% extends "admin/dashboard.html" %}
+
+{% block content %}
+<h2 class="mb-4">
+  {% if event %}Modifier{% else %}Créer{% endif %} un événement
+</h2>
+
+<form method="POST">
+  {{ form.hidden_tag() }}
+  
+  <div class="mb-3">
+    {{ form.title.label(class="form-label") }}
+    {{ form.title(class="form-control") }}
+  </div>
+
+  <div class="mb-3">
+    {{ form.description.label(class="form-label") }}
+    {{ form.description(class="form-control", rows=5) }}
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      {{ form.start_time.label(class="form-label") }}
+      {{ form.start_time(class="form-control") }}
+    </div>
+    <div class="col-md-6">
+      {{ form.end_time.label(class="form-label") }}
+      {{ form.end_time(class="form-control") }}
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      {{ form.location.label(class="form-label") }}
+      {{ form.location(class="form-control") }}
+    </div>
+    <div class="col-md-6">
+      {{ form.max_attendees.label(class="form-label") }}
+      {{ form.max_attendees(class="form-control") }}
+    </div>
+  </div>
+
+  <div class="mb-3 form-check">
+    {{ form.is_online(class="form-check-input") }}
+    {{ form.is_online.label(class="form-check-label") }}
+  </div>
+
+  <button type="submit" class="btn btn-primary">
+    {% if event %}Mettre à jour{% else %}Créer{% endif %}
+  </button>
+  <a href="{{ url_for('admin.manage_events') }}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

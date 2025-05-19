@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">Dashboard</h2>
+
+  <!-- KPI Cards -->
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    {% for card in kpi_cards %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="card-title">{{ card.title }}</h5>
+            <p class="card-text fs-4">
+              {% if card.title == 'Points XP' %}
+                <span class="xp-points">{{ card.value }}</span> <i class="fas fa-star text-warning"></i>
+              {% else %}
+                {{ card.value }}
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Charts -->
+  <div class="row">
+    <!-- Activity Chart -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Activité sur 7 jours</h5>
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- Contribution Pie -->
+    <div class="col-lg-6 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Contributions</h5>
+          <canvas id="contribPie"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Category Distribution -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Répartition par catégorie</h5>
+          <canvas id="catDistBar"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+  {{ super() }}
+  <!-- Chart.js est déjà importé dans base.html -->
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

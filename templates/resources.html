@@ -1,97 +1,62 @@
-{% extends "base.html" %}
-
-{% block title %}Ressources – ENSEA Data Science Club{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Ressources – ENSEA DSC{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Ressources</h2>
+<h1>Ressources</h1>
 
-  <!-- Filtre & Recherche -->
-  <form method="get" action="{{ url_for('resources.list_resources') }}" class="row g-2 align-items-center mb-4">
-    <div class="col-md-4">
-      <input
-        type="text"
-        name="q"
-        value="{{ q }}"
-        class="form-control"
-        placeholder="Rechercher un titre…"
-      >
-    </div>
-    <div class="col-md-3">
-      <select name="cat" class="form-select">
-        <option value="">Toutes catégories</option>
-        {% for c in categories %}
-          <option value="{{ c.id }}" {% if c.id == cat %}selected{% endif %}>
-            {{ c.name }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-auto">
-      <button type="submit" class="btn btn-outline-primary">Filtrer</button>
-    </div>
-
-    {% if current_user.role == 'admin' %}
-      <div class="col-auto ms-auto">
-        <a href="{{ url_for('resources.upload_resource') }}" class="btn btn-primary">
-          + Ajouter une ressource
-        </a>
-      </div>
-    {% endif %}
-  </form>
-
-  <!-- Table des ressources -->
-  <table class="table table-striped align-middle">
-    <thead>
-      <tr>
-        <th>Titre</th>
-        <th>Description</th>
-        <th>Catégorie</th>
-        <th>Ajouté le</th>
-        <th class="text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for res in resources %}
-        <tr>
-          <td>{{ res.title }}</td>
-          <td>{{ res.description[:50] ~ ('…' if res.description|length > 50 else '') }}</td>
-          <td>{{ res.category.name }}</td>
-          <td>{{ res.uploaded_at.strftime('%d/%m/%Y') }}</td>
-          <td class="text-center">
-            <a
-              href="{{ url_for('resources.download', res_id=res.id) }}"
-              class="btn btn-sm btn-outline-primary"
-            >Télécharger</a>
-
-            {% if current_user.role == 'admin' %}
-              <a
-                href="{{ url_for('resources.edit_resource', res_id=res.id) }}"
-                class="btn btn-sm btn-outline-secondary"
-              >Modifier</a>
-
-              <form
-                method="post"
-                action="{{ url_for('resources.delete_resource', res_id=res.id) }}"
-                style="display:inline;"
-                onsubmit="return confirm('Supprimer définitivement cette ressource ?');"
-              >
-                {{ csrf_token() }}
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                  Supprimer
-                </button>
-              </form>
-            {% endif %}
-          </td>
-        </tr>
-      {% else %}
-        <tr>
-          <td colspan="5" class="text-center py-4">
-            Aucune ressource trouvée.
-          </td>
-        </tr>
+<form class="row g-2 mb-4">
+  <div class="col-md-4">
+    <input name="q" value="{{ q }}" class="form-control" placeholder="Recherche…">
+  </div>
+  <div class="col-auto">
+    <select name="cat" class="form-select">
+      <option value="">Toutes catégories</option>
+      {% for c in categories %}
+      <option value="{{ c.id }}" {% if c.id == cat %}selected{% endif %}>{{ c.name }}</option>
       {% endfor %}
-    </tbody>
-  </table>
+    </select>
+  </div>
+  <div class="col-auto">
+    <select name="sort" class="form-select">
+      <option value="recent" {% if sort=='recent' %}selected{% endif %}>Nouveautés</option>
+      <option value="popular" {% if sort=='popular' %}selected{% endif %}>Plus vues</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary">Filtrer</button>
+  </div>
+</form>
+
+<div class="row g-4">
+  {% for r in resources %}
+  <div class="col-lg-4 col-md-6">
+    <div class="card h-100 shadow-sm">
+      <div class="ratio ratio-16x9">
+        {% if r.file_type.startswith('image') %}
+          <img src="{{ r.file_url }}" class="card-img-top">
+        {% elif r.file_type=='application/pdf' %}
+          <embed src="{{ r.file_url }}" type="application/pdf">
+        {% else %}
+          <div class="d-flex justify-content-center align-items-center h-100">
+            <i class="fas fa-file-{{ 'video' if 'video' in r.file_type else 'download' }} fa-3x text-muted"></i>
+          </div>
+        {% endif %}
+      </div>
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">
+          <a href="{{ url_for('resources.resource_detail', res_id=r.id) }}">{{ r.title }}</a>
+        </h5>
+        <p class="card-text text-truncate">{{ r.description }}</p>
+        <div class="mt-auto d-flex justify-content-between align-items-center">
+          <small><i class="fas fa-eye"></i> {{ r.views }}</small>
+          <a href="{{ url_for('resources.resource_detail', res_id=r.id) }}"
+             class="btn btn-sm btn-outline-primary">Voir</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <p>Aucune ressource trouvée.</p>
+  {% endfor %}
 </div>
 {% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Notifications – Forum{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Notifications <span class="badge bg-danger">{{ unread_count }}</span></h2>
+  <div class="mb-3">
+    <a href="{{ url_for('forum.notifications', filter='all') }}" class="btn btn-outline-primary {% if filter_type == 'all' %}active{% endif %}">Toutes</a>
+    <a href="{{ url_for('forum.notifications', filter='unread') }}" class="btn btn-outline-primary {% if filter_type == 'unread' %}active{% endif %}">Non lues</a>
+  </div>
+  <div class="list-group">
+    {% for notif in notifications %}
+      <a href="{{ notif.link or '#' }}" class="list-group-item list-group-item-action {% if not notif.is_read %}active{% endif %}" 
+         data-notif-id="{{ notif.id }}">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ notif.message }}</h5>
+          <small>{{ notif.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+        </div>
+        <small class="text-muted">Cliquez pour marquer comme lu</small>
+      </a>
+    {% endfor %}
+  </div>
+  {% if notifications|length == 10 %}
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('forum.notifications', page=pagination.prev_num, filter=filter_type) if pagination.has_prev else '#' }}">Précédent</a>
+        </li>
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('forum.notifications', page=pagination.next_num, filter=filter_type) if pagination.has_next else '#' }}">Suivant</a>
+        </li>
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{{ super() }}
+<script>
+  document.querySelectorAll('.list-group-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const notifId = item.dataset.notifId;
+      fetch(`/notification/${notifId}/mark_read`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            item.classList.remove('active');
+            const unreadCount = document.querySelector('.badge.bg-danger');
+            if (unreadCount) {
+              let count = parseInt(unreadCount.textContent) - 1;
+              unreadCount.textContent = count > 0 ? count : '';
+            }
+          }
+        });
+    });
+  });
+</script>
+{% endblock %}

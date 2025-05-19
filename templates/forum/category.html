@@ -1,0 +1,14 @@
+{% extends 'forum/index.html' %}
+{% block content %}
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{{ url_for('forum.index') }}">Forum</a></li>
+      <li class="breadcrumb-item active">{{ category.name }}</li>
+    </ol>
+  </nav>
+  {# on fournit les mêmes variables que parent #}
+  {% set threads    = threads %}
+  {% set pagination = pagination %}
+  {% set q          = q %}
+  {{ super() }}
+{% endblock %}

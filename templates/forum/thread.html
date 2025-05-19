@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}{{ thread.title }} – Forum{% endblock %}
+
+{% block head_scripts %}
+  {{ super() }}
+  <!-- socket.io déjà inclus dans base, mais tu peux le laisser ici si tu veux -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('forum.index') }}">Forum</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('forum.view_category', cat_id=thread.category.id) }}">{{ thread.category.name }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">{{ thread.title }}</li>
+  </ol>
+</nav>
+
+<h2>{{ thread.title }}</h2>
+<p class="text-muted mb-4">
+  Créé par <strong>{{ thread.author.username }}</strong>
+  le {{ thread.created_at.strftime('%d/%m/%Y à %H:%M') }}
+</p>
+
+{% macro render_post(post, level=0) %}
+  <div class="card mb-3 {% if now and (now - post.created_at).days < 1 %}post-recent{% endif %}"
+       id="post-{{ post.id }}" style="margin-left: {{ level * 2 }}rem;">
+    <div class="card-body">
+      <div class="d-flex justify-content-between mb-2">
+        <div class="d-flex align-items-start">
+          <img src="{{ post.author.avatar_url or url_for('static', filename='images/default-avatar.png') }}"
+               class="rounded-circle me-3 avatar-clickable" width="40" height="40">
+          <div>
+            <strong>{{ post.author.username }}</strong>
+            {% if post.author_id == thread.created_by %}<span class="badge bg-primary ms-2">Auteur</span>{% endif %}
+            {% if post.is_solution %}<span class="badge bg-success ms-2">Solution</span>{% endif %}
+            <br>
+            <small class="text-muted">{{ post.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+            {% if post.updated_at %}
+              <small class="text-muted ms-2">(modifié le {{ post.updated_at.strftime('%d/%m/%Y %H:%M') }})</small>
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          {% if post.author_id == current_user.id %}
+            <a href="{{ url_for('forum.edit_post', post_id=post.id) }}" class="btn btn-sm btn-link">
+              <i class="fas fa-edit"></i> Éditer
+            </a>
+          {% endif %}
+          {% if thread.created_by == current_user.id and post.author_id != current_user.id and not post.is_solution %}
+            <form action="{{ url_for('forum.mark_solution', post_id=post.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-link text-success">
+                <i class="fas fa-check"></i> Solution
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      <div class="post-content">{{ post.body|safe }}</div>
+      <div class="mt-2">
+        {% set reacted = post.reactions|selectattr('user','equalto',current_user)|list %}
+        <button type="button"
+                class="btn btn-sm btn-outline-secondary like-btn {% if reacted %}btn-secondary{% endif %}"
+                data-post-id="{{ post.id }}">
+          <i class="fas fa-heart"></i>
+          <span class="like-count">{{ post.reactions|length }}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-link reply-btn" data-parent="{{ post.id }}">
+          <i class="fas fa-reply"></i> Répondre
+        </button>
+      </div>
+    </div>
+  </div>
+  {% for reply in post.replies %}
+    {{ render_post(reply, level+1) }}
+  {% endfor %}
+{% endmacro %}
+
+<div class="mb-5">
+  {% for post in thread.posts|selectattr('parent_id','equalto',None) %}
+    {{ render_post(post) }}
+  {% endfor %}
+</div>
+
+<div class="card mb-4">
+  <div class="card-header bg-light"><i class="fas fa-paper-plane"></i> Répondre</div>
+  <div class="card-body">
+    <form id="reply-form" method="post" action="{{ url_for('forum.view_thread', thread_id=thread.id) }}">
+      {{ form.hidden_tag() }}
+      {{ form.parent_id(class="d-none", id="parent_id") }}
+      <div class="mb-3">
+        {{ form.body(class="form-control", id="editor-reply") }}
+        {% for err in form.body.errors %}
+          <div class="text-danger small">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <button type="button" id="submit-reply" class="btn btn-primary">
+        <i class="fas fa-check"></i> Envoyer
+      </button>
+    </form>
+  </div>
+</div>
+
+{# Modale Avatar #}
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-body text-center p-2">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+                data-bs-dismiss="modal" aria-label="Fermer"></button>
+        <img id="avatarModalImage" src="" alt="Avatar agrandi" class="img-fluid rounded" style="max-height:80vh;">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

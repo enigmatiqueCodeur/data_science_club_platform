@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Forum – ENSEA DSC{% endblock %}
+
+{% block content %}
+<div class="row">
+  <aside class="col-md-3 mb-4">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <i class="fas fa-list"></i> Catégories
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for c in categories %}
+        <li class="list-group-item d-flex justify-content-between">
+          <a href="{{ url_for('forum.view_category', cat_id=c.id, q=q) }}">
+            {{ c.name }}
+          </a>
+          <span class="badge bg-secondary">{{ c.threads|length }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+
+  <section class="col-md-9">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2><i class="fas fa-comments"></i> Forum</h2>
+      <a href="{{ url_for('forum.new_thread') }}" class="btn btn-success">
+        <i class="fas fa-plus"></i> Nouveau fil
+      </a>
+    </div>
+
+    <form method="get" action="{{ url_for('forum.index') }}" class="mb-4">
+      <div class="input-group">
+        <input name="q" value="{{ q }}" class="form-control" placeholder="Rechercher…">
+        <button class="btn btn-outline-primary"><i class="fas fa-search"></i></button>
+      </div>
+    </form>
+
+    {% for thread in threads %}
+    <div class="card mb-3 shadow-sm">
+      <div class="card-body">
+        <h5>
+          <a href="{{ url_for('forum.view_thread', thread_id=thread.id) }}">
+            {{ thread.title }}
+          </a>
+        </h5>
+        <small class="text-muted">
+          <i class="fas fa-user"></i> {{ thread.author.username }}
+          &bull; {{ thread.created_at.strftime('%d/%m/%Y') }}
+          &bull; <i class="fas fa-comments"></i> {{ thread.posts|length }}
+        </small>
+      </div>
+    </div>
+    {% else %}
+      <p>Aucun fil trouvé.</p>
+    {% endfor %}
+
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Pagination Forum">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
+          <a class="page-link" href="{{ url_for('forum.index', page=pagination.prev_num, q=q) }}">&laquo;</a>
+        </li>
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+          <li class="page-item {{ 'active' if p == pagination.page }}">
+            <a class="page-link" href="{{ url_for('forum.index', page=p, q=q) }}">{{ p }}</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if not pagination.has_next }}">
+          <a class="page-link" href="{{ url_for('forum.index', page=pagination.next_num, q=q) }}">&raquo;</a>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

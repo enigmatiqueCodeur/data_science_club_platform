@@ -2,9 +2,36 @@
 {% block title %}Dashboard Admin – ENSEA Data Science Club{% endblock %}
 
 {% block content %}
-  <h1>Tableau de bord Admin</h1>
-  <ul>
-    <li><a href="{{ url_for('admin.validate_users') }}">Valider les nouveaux membres</a></li>
-    <li><a href="{{ url_for('admin.pending_resources') }}">Valider les ressources soumises</a></li>
-  </ul>
+  <h1 class="mb-4">Tableau de bord Admin</h1>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <a href="{{ url_for('admin.validate_users') }}" class="card text-center h-100 p-4 text-decoration-none">
+        <i class="fas fa-user-check fa-2x mb-2"></i>
+        <h5 class="mt-2">Valider membres</h5>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a href="{{ url_for('admin.pending_resources') }}" class="card text-center h-100 p-4 text-decoration-none">
+        <i class="fas fa-file-import fa-2x mb-2"></i>
+        <h5 class="mt-2">Valider ressources</h5>
+      </a>
+    </div>
+
+    <div class="col-md-4">
+      <a href="{{ url_for('admin.manage_categories') }}" class="card text-center h-100 p-4 text-decoration-none">
+        <i class="fas fa-list fa-2x mb-2"></i>
+        <h5 class="mt-2">Catégories forum</h5>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+      <a href="{{ url_for('admin.manage_events') }}" class="card text-center h-100 p-4 text-decoration-none">
+        <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+        <h5 class="mt-2">Gérer les événements</h5>
+      </a>
+    </div>
+  </div>
 {% endblock %}

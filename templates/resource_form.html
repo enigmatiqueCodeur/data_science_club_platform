@@ -1,19 +1,26 @@
 {% extends "base.html" %}
+{% block title %}
+  {% if edit %}Modifier{% else %}Ajouter{% endif %} ressource
+{% endblock %}
+
 {% block content %}
-<h2>Nouvelle ressource</h2>
+<h2>
+  {% if edit %}Modifier{% else %}{{ 'Uploader' if is_admin else 'Proposer' }}{% endif %}
+  une ressource
+</h2>
 <form method="post" enctype="multipart/form-data">
   {{ form.hidden_tag() }}
+  <div class="mb-3">{{ form.title.label }}{{ form.title(class="form-control") }}</div>
+  <div class="mb-3">{{ form.description.label }}{{ form.description(class="form-control", rows=3) }}</div>
+  <div class="mb-3">{{ form.category.label }}{{ form.category(class="form-select") }}</div>
   <div class="mb-3">
-    {{ form.title.label }} {{ form.title(class="form-control") }}
-  </div>
-  <div class="mb-3">
-    {{ form.description.label }} {{ form.description(class="form-control") }}
-  </div>
-  <div class="mb-3">
-    {{ form.category.label }} {{ form.category(class="form-select") }}
-  </div>
-  <div class="mb-3">
-    {{ form.file.label }} {{ form.file(class="form-control") }}
+    {{ form.file.label }}
+    {{ form.file(class="form-control") }}
+    {% if edit and resource %}
+      <small class="text-muted d-block mt-1">
+        Fichier actuel : {{ resource.filename }}
+      </small>
+    {% endif %}
   </div>
   <button class="btn btn-primary">{{ form.submit.label.text }}</button>
 </form>

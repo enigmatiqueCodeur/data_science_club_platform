@@ -1,0 +1,55 @@
+{# templates/about.html #}
+{% extends 'base.html' %}
+{% block title %}À propos – ENSEA Data Science Club{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-5">
+    <h1 class="display-5 text-primary">ENSEA Data Science Club</h1>
+    <p class="lead text-muted">La communauté qui fait vibrer la data science à ENSEA</p>
+  </div>
+
+  <div class="row gy-4">
+    <div class="col-md-6">
+      <h3>Notre mission</h3>
+      <p class="text-muted">
+        Rassembler étudiants et professionnels passionnés de data science pour
+        partager savoir-faire, ressources et projets collaboratifs.
+      </p>
+    </div>
+    <div class="col-md-6">
+      <h3>Nos valeurs</h3>
+      <ul class="list-unstyled text-muted">
+        <li><i class="fas fa-hands-helping me-2 text-primary"></i>entraide &amp; esprit d’équipe</li>
+        <li><i class="fas fa-lightbulb me-2 text-primary"></i>innovation &amp; curiosité</li>
+        <li><i class="fas fa-graduation-cap me-2 text-primary"></i>excellence pédagogique</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="my-5">
+
+  <div class="row gy-4 text-center">
+    <div class="col-md-4">
+      <i class="fas fa-book fa-2x text-primary mb-2"></i>
+      <h5>Ressources</h5>
+      <p class="text-muted">Bibliothèque validée pour apprendre et se perfectionner.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="fas fa-comments fa-2x text-primary mb-2"></i>
+      <h5>Forum</h5>
+      <p class="text-muted">Échanges dynamiques autour des enjeux et cas pratiques.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="fas fa-star fa-2x text-primary mb-2"></i>
+      <h5>XP &amp; Récompenses</h5>
+      <p class="text-muted">Gagnez des points en contribuant et progressez dans la communauté.</p>
+    </div>
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-lg btn-primary me-3">Rejoignez-nous</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">Déjà membre ? Connectez-vous</a>
+  </div>
+</div>
+{% endblock %}

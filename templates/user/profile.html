@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Profil de {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="row gy-4">
+  <!-- Profil Header -->
+  <div class="col-12">
+    <div class="card shadow-sm p-4">
+      <div class="d-flex align-items-center flex-column flex-md-row">
+       <img src="{{ user.avatar_url if user.avatar_url else url_for('static', filename='images/default-avatar.png') }}"
+             alt="Avatar de {{ user.username }}"
+             class="rounded-circle mb-3 mb-md-0 me-md-4 avatar-clickable"
+             width="100" height="100"
+             style="object-fit: cover;">
+        <div class="text-center text-md-start">
+          <h2 class="mb-1">{{ user.first_name }} {{ user.last_name }}</h2>
+          <p class="text-muted mb-2">@{{ user.username }}</p>
+          <p class="text-muted mb-2"><strong>Points XP :</strong> <span class="xp-points">{{ user.points }}</span> <i class="fas fa-star text-warning"></i></p>
+          <p class="text-muted mb-0">{{ user.bio or "Aucune bio fournie." }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="col-12">
+    <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab" aria-controls="about" aria-selected="true">À propos</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Paramètres</button>
+      </li>
+    </ul>
+    <div class="tab-content p-4 bg-white shadow-sm rounded" id="profileTabsContent">
+      <!-- À propos -->
+      <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
+        <h5 class="mb-3">À propos de {{ user.username }}</h5>
+        <dl class="row">
+          <dt class="col-sm-3">Nom complet</dt>
+          <dd class="col-sm-9">{{ user.first_name }} {{ user.last_name }}</dd>
+          <dt class="col-sm-3">Pseudo</dt>
+          <dd class="col-sm-9">{{ user.username }}</dd>
+          <dt class="col-sm-3">Email</dt>
+          <dd class="col-sm-9">{{ user.email }}</dd>
+          <dt class="col-sm-3">Points XP</dt>
+          <dd class="col-sm-9"><span class="xp-points">{{ user.points }}</span> <i class="fas fa-star text-warning"></i></dd>
+          <dt class="col-sm-3">Bio</dt>
+          <dd class="col-sm-9">{{ user.bio or "Aucune bio fournie." }}</dd>
+          <dt class="col-sm-3">Dernière connexion</dt>
+          <dd class="col-sm-9">{{ user.last_online.strftime('%d/%m/%Y %H:%M') if user.last_online else "Inconnue" }}</dd>
+        </dl>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary mt-3">Voir mon dashboard</a>
+      </div>
+
+      <!-- Paramètres -->
+      <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+        <h5 class="mb-3">Modifier le profil</h5>
+        <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary">Éditer mon profil</a>
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-warning">
+            <i class="fas fa-key me-1"></i> Changer le mot de passe
+          </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0">
+      <div class="modal-body text-center p-2">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+                data-bs-dismiss="modal" aria-label="Fermer"></button>
+        <img id="avatarModalImage" src="" alt="Avatar agrandi" class="img-fluid rounded" style="max-height:80vh;">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+

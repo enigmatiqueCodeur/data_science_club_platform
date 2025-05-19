@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Modifier le profil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Modifier le profil</h2>
+  <div class="card shadow-sm p-4">
+    <form action="{{ url_for('user.edit_profile') }}" method="POST" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <textarea class="form-control" id="bio" name="bio" rows="4" maxlength="500">{{ form.bio.data or '' }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label for="avatar" class="form-label">Changer l'avatar</label>
+        <input type="file" class="form-control" id="avatar" name="avatar" accept="image/jpeg,image/png,image/gif">
+      </div>
+      <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+      <a href="{{ url_for('user.profile', username=current_user.username) }}" class="btn btn-outline-secondary ms-2">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

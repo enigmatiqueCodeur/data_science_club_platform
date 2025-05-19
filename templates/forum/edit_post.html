@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Éditer le post – {{ post.thread.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('forum.index') }}">Forum</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('forum.view_category', cat_id=post.thread.category.id) }}">
+        {{ post.thread.category.name }}
+      </a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('forum.view_thread', thread_id=post.thread.id) }}">
+        {{ post.thread.title }}
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Éditer le post</li>
+  </ol>
+</nav>
+
+<div class="card mx-auto" style="max-width: 720px;">
+  <div class="card-header bg-warning text-white">
+    <i class="fas fa-edit me-1"></i> Modifier votre message
+  </div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('forum.edit_post', post_id=post.id) }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.body.label(class="form-label") }}
+        {{ form.body(class="form-control", id="editor") }}
+      </div>
+      <button class="btn btn-warning">
+        <i class="fas fa-save me-1"></i> Enregistrer
+      </button>
+      <a href="{{ url_for('forum.view_thread', thread_id=post.thread.id) }}" class="btn btn-secondary ms-2">
+        Annuler
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+  {{ super() }}
+  <script>
+    ClassicEditor.create(document.querySelector('#editor'))
+      .catch(error => console.error(error));
+  </script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Nous contacter{% endblock %}
+
+{% block content %}
+<div class="card mx-auto" style="max-width:600px;">
+  <div class="card-header bg-info text-white">
+    <i class="fas fa-envelope"></i> Nous contacter
+  </div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('main.contact') }}">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+        {% for err in form.name.errors %}
+          <div class="text-danger">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+        {% for err in form.email.errors %}
+          <div class="text-danger">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.subject.label(class="form-label") }}
+        {{ form.subject(class="form-control") }}
+        {% for err in form.subject.errors %}
+          <div class="text-danger">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <div class="mb-3">
+        {{ form.message.label(class="form-label") }}
+        {{ form.message(class="form-control", rows=5) }}
+        {% for err in form.message.errors %}
+          <div class="text-danger">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-info">
+        <i class="fas fa-paper-plane"></i> Envoyer
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

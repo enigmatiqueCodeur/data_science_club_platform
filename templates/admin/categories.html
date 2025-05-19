@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Gérer les catégories{% endblock %}
+{% block content %}
+<h2>Catégories du forum</h2>
+<a href="{{ url_for('admin.new_category') }}" class="btn btn-primary mb-3">Nouvelle catégorie</a>
+<ul class="list-group">
+  {% for c in categories %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      {{ c.name }}
+      <form method="post" action="{{ url_for('admin.delete_category', cat_id=c.id) }}"
+            onsubmit="return confirm('Supprimer cette catégorie ?');">
+        <button class="btn btn-sm btn-danger">Supprimer</button>
+      </form>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

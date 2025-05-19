@@ -1,61 +1,81 @@
-# routes/resources.py
-import os, uuid
+import os
+import uuid
 from flask import (
-    Blueprint, render_template, redirect, url_for, flash,
-    request, send_from_directory, current_app, abort
+    Blueprint, render_template, redirect, url_for,
+    flash, request, send_from_directory, current_app, session
 )
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-
 from app import db
 from models import Category, Resource
+from models.resource_access import ResourceAccess
 from forms import ResourceForm
-from routes.admin import admin_required  # récupère ton décorateur
 
 bp = Blueprint('resources', __name__, url_prefix='/resources')
 
-
-# 1. LISTE & FILTRAGE (seulement les ressources validées)
 @bp.route('/', methods=['GET'])
 @login_required
 def list_resources():
-    q   = request.args.get('q', '', type=str)
-    cat = request.args.get('cat', type=int)
+    q    = request.args.get('q', '', type=str)
+    cat  = request.args.get('cat', type=int)
+    sort = request.args.get('sort', 'recent', type=str)
 
-    query = Resource.query \
-        .join(Category) \
-        .filter(Resource.is_validated.is_(True))
-
+    query = Resource.query.join(Category).filter(Resource.is_validated.is_(True))
     if q:
-        query = query.filter(Resource.title.ilike(f'%{q}%'))
+        query = query.filter(Resource.title.ilike(f"%{q}%"))
     if cat:
         query = query.filter(Resource.category_id == cat)
 
-    resources  = query.order_by(Resource.uploaded_at.desc()).all()
+    if sort == 'popular':
+        query = query.order_by(Resource.views.desc())
+    else:
+        query = query.order_by(Resource.uploaded_at.desc())
+
+    resources  = query.all()
     categories = Category.query.order_by(Category.name).all()
 
     return render_template(
         'resources.html',
         resources=resources,
         categories=categories,
-        q=q, cat=cat
+        q=q, cat=cat, sort=sort
     )
 
+@bp.route('/<int:res_id>')
+@login_required
+def resource_detail(res_id):
+    res = Resource.query.get_or_404(res_id)
 
-# 2. TÉLÉCHARGEMENT
+    key = f"viewed_resource_{res_id}"
+    if not session.get(key):
+        access = ResourceAccess(user_id=current_user.id,
+                                resource_id=res.id,
+                                action='view')
+        db.session.add(access)
+        res.views += 1
+        db.session.commit()
+        session[key] = True
+
+    return render_template('resource_detail.html', resource=res)
+
 @bp.route('/download/<int:res_id>')
 @login_required
 def download(res_id):
     res = Resource.query.get_or_404(res_id)
+
+    access = ResourceAccess(user_id=current_user.id,
+                            resource_id=res.id,
+                            action='download')
+    db.session.add(access)
+    db.session.commit()
+
     return send_from_directory(
-        current_app.config['UPLOAD_FOLDER'],
-        res.filename,
+        directory=current_app.config['UPLOAD_FOLDER'],
+        path=res.filename,
         as_attachment=True
     )
 
-
-# 3. UPLOAD / PROPOSITION
-@bp.route('/new', methods=['GET', 'POST'])
+@bp.route('/new', methods=['GET','POST'])
 @login_required
 def upload_resource():
     is_admin = (current_user.role == 'admin')
@@ -65,34 +85,31 @@ def upload_resource():
     ]
 
     if form.validate_on_submit():
-        f = form.file.data
+        f    = form.file.data
         orig = secure_filename(f.filename)
-        unique_name = f"{uuid.uuid4().hex}_{orig}"
+        uniq = f"{uuid.uuid4().hex}_{orig}"
+        dst  = os.path.join(current_app.config['UPLOAD_FOLDER'], uniq)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        f.save(dst)
 
-        # 3.1. Sauvegarde physique
-        folder = current_app.config['UPLOAD_FOLDER']
-        os.makedirs(folder, exist_ok=True)
-        f.save(os.path.join(folder, unique_name))
-
-        # 3.2. Création en base
         res = Resource(
             title        = form.title.data,
             description  = form.description.data,
-            filename     = unique_name,
+            filename     = uniq,
             file_type    = f.mimetype,
             category_id  = form.category.data,
             uploaded_by  = current_user.id if is_admin else None,
-            submitted_by = None   if is_admin else current_user.id,
+            submitted_by = None if is_admin else current_user.id,
             is_validated = is_admin
         )
         db.session.add(res)
+        if not is_admin:
+            current_user.points = (current_user.points or 0) + 10  # +10 XP pour proposition
         db.session.commit()
 
-        flash(
-          "Ressource ajoutée avec succès." if is_admin
-          else "Proposition enregistrée, en attente de validation.",
-          "success"
-        )
+        msg = "Ressource ajoutée" if is_admin \
+              else "Proposition envoyée, en attente de validation (+10 XP)"
+        flash(msg, 'success')
         return redirect(url_for('resources.list_resources'))
 
     return render_template(
@@ -101,17 +118,18 @@ def upload_resource():
         is_admin=is_admin
     )
 
-
-# 4. MODIFICATION (admin only)
-@bp.route('/edit/<int:res_id>', methods=['GET', 'POST'])
+@bp.route('/edit/<int:res_id>', methods=['GET','POST'])
 @login_required
-@admin_required
 def edit_resource(res_id):
+    if current_user.role != 'admin':
+        flash("Accès interdit.", 'danger')
+        return redirect(url_for('resources.list_resources'))
+
     res = Resource.query.get_or_404(res_id)
     form = ResourceForm(
-      title       = res.title,
-      description = res.description,
-      category    = res.category_id
+        title       = res.title,
+        description = res.description,
+        category    = res.category_id
     )
     form.category.choices = [
         (c.id, c.name) for c in Category.query.order_by(Category.name).all()
@@ -122,20 +140,19 @@ def edit_resource(res_id):
         res.description = form.description.data
         res.category_id = form.category.data
 
-        # si on ré‐upload un fichier
         if form.file.data:
             old = os.path.join(current_app.config['UPLOAD_FOLDER'], res.filename)
             if os.path.exists(old):
                 os.remove(old)
-
-            newf = form.file.data
-            name = f"{uuid.uuid4().hex}_{secure_filename(newf.filename)}"
-            newf.save(os.path.join(current_app.config['UPLOAD_FOLDER'], name))
+            f    = form.file.data
+            name = f"{uuid.uuid4().hex}_{secure_filename(f.filename)}"
+            path = os.path.join(current_app.config['UPLOAD_FOLDER'], name)
+            f.save(path)
             res.filename  = name
-            res.file_type = newf.mimetype
+            res.file_type = f.mimetype
 
         db.session.commit()
-        flash("Ressource mise à jour.", "success")
+        flash("Ressource modifiée.", 'success')
         return redirect(url_for('resources.list_resources'))
 
     return render_template(
@@ -145,17 +162,19 @@ def edit_resource(res_id):
         resource=res
     )
 
-
-# 5. SUPPRESSION (admin only)
 @bp.route('/delete/<int:res_id>', methods=['POST'])
 @login_required
-@admin_required
 def delete_resource(res_id):
+    if current_user.role != 'admin':
+        flash("Accès interdit.", 'danger')
+        return redirect(url_for('resources.list_resources'))
+
     res = Resource.query.get_or_404(res_id)
-    path = os.path.join(current_app.config['UPLOAD_FOLDER'], res.filename)
-    if os.path.exists(path):
-        os.remove(path)
+    fp  = os.path.join(current_app.config['UPLOAD_FOLDER'], res.filename)
+    if os.path.exists(fp):
+        os.remove(fp)
+
     db.session.delete(res)
     db.session.commit()
-    flash("Ressource supprimée avec succès.", "success")
+    flash("Ressource supprimée.", 'success')
     return redirect(url_for('resources.list_resources'))

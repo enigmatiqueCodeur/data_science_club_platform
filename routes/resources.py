@@ -69,6 +69,14 @@ def download(res_id):
     db.session.add(access)
     db.session.commit()
 
+    # Chemin complet du fichier
+    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], res.filename)
+    
+    # Vérification que le fichier existe
+    if not os.path.exists(file_path):
+        flash("Fichier introuvable sur le serveur", 'error')
+        return redirect(url_for('resources.list_resources'))
+
     return send_from_directory(
         directory=current_app.config['UPLOAD_FOLDER'],
         path=res.filename,
@@ -85,6 +93,8 @@ def upload_resource():
     ]
 
     if form.validate_on_submit():
+        print("Chemin complet du dossier upload:", current_app.config['UPLOAD_FOLDER'])
+        print("Le dossier existe?", os.path.exists(current_app.config['UPLOAD_FOLDER']))
         f    = form.file.data
         orig = secure_filename(f.filename)
         uniq = f"{uuid.uuid4().hex}_{orig}"
@@ -116,6 +126,15 @@ def upload_resource():
         'resource_form.html',
         form=form,
         is_admin=is_admin
+    )
+
+@bp.route('/file/<filename>')
+@login_required
+def serve_file(filename):
+    return send_from_directory(
+        current_app.config['UPLOAD_FOLDER'],
+        filename,
+        as_attachment=False
     )
 
 @bp.route('/edit/<int:res_id>', methods=['GET','POST'])

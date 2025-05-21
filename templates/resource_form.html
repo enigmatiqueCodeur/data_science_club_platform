@@ -4,24 +4,75 @@
 {% endblock %}
 
 {% block content %}
-<h2>
-  {% if edit %}Modifier{% else %}{{ 'Uploader' if is_admin else 'Proposer' }}{% endif %}
-  une ressource
-</h2>
-<form method="post" enctype="multipart/form-data">
-  {{ form.hidden_tag() }}
-  <div class="mb-3">{{ form.title.label }}{{ form.title(class="form-control") }}</div>
-  <div class="mb-3">{{ form.description.label }}{{ form.description(class="form-control", rows=3) }}</div>
-  <div class="mb-3">{{ form.category.label }}{{ form.category(class="form-select") }}</div>
-  <div class="mb-3">
-    {{ form.file.label }}
-    {{ form.file(class="form-control") }}
-    {% if edit and resource %}
-      <small class="text-muted d-block mt-1">
-        Fichier actuel : {{ resource.filename }}
-      </small>
-    {% endif %}
-  </div>
-  <button class="btn btn-primary">{{ form.submit.label.text }}</button>
-</form>
+<div class="container">
+  <h2 class="mb-4">
+    {% if edit %}Modifier{% else %}{{ 'Uploader' if is_admin else 'Proposer' }}{% endif %}
+    une ressource
+  </h2>
+  
+  <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+      {{ form.title.label(class="form-label") }}
+      {{ form.title(class="form-control") }}
+      <div class="invalid-feedback">Un titre est requis</div>
+    </div>
+    
+    <div class="mb-3">
+      {{ form.description.label(class="form-label") }}
+      {{ form.description(class="form-control", rows=3) }}
+    </div>
+    
+    <div class="mb-3">
+      {{ form.category.label(class="form-label") }}
+      {{ form.category(class="form-select") }}
+    </div>
+    
+    <div class="mb-4">
+      {{ form.file.label(class="form-label") }}
+      {{ form.file(class="form-control") }}
+      <div class="form-text">
+        Formats acceptés: 
+        {{ config.ALLOWED_EXTENSIONS|join(', ')|replace('.', '')|upper }}
+      </div>
+      {% if edit and resource %}
+        <div class="mt-2">
+          <small class="text-muted">
+            Fichier actuel: 
+            <a href="{{ url_for('resources.serve_file', filename=resource.filename) }}" target="_blank">
+              {{ resource.filename }}
+            </a>
+          </small>
+        </div>
+      {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-{{ 'save' if edit else 'upload' }} me-1"></i>
+      {{ form.submit.label.text }}
+    </button>
+    
+    <a href="{{ url_for('resources.list_resources') }}" class="btn btn-outline-secondary ms-2">
+      Annuler
+    </a>
+  </form>
+</div>
+
+<script>
+// Validation Bootstrap
+(() => {
+  'use strict'
+  const forms = document.querySelectorAll('.needs-validation')
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+      form.classList.add('was-validated')
+    }, false)
+  })
+})()
+</script>
 {% endblock %}

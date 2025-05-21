@@ -45,7 +45,10 @@ with app.app_context():
         ("Où trouver la documentation utilisateur ?",
          "Dans le pied de page, cliquez sur **À propos**, puis sur le lien vers la doc."),
         ("Je rencontre un bug, comment le signaler ?",
-         "Décrivez-le sur le forum dans la catégorie “Bugs & Support” ."),
+         "Décrivez-le sur le forum dans la catégorie “Bugs & Support."),
+         ("Bonjour", "Salut je suis edsc_bot! Je peux vous aider à trouver une ressource en utilisant le préfixe  'cherche' ou répondre à des questions courantes comme : Comment changer mon avatar ? ou encore Comment fonctionne le système de points XP ?"),
+         ("Bonsoir","Salut je suis edsc_bot! Je peux vous aider à trouver une ressource en utilisant le préfixe  'cherche' ou répondre à des questions courantes comme : Comment changer mon avatar ? ou encore Comment fonctionne le système de points XP ?, etc ..."),
+        ("Salut", "Salut je suis edsc_bot! Je peux vous aider à trouver une ressource en utilisant le préfixe  'cherche' ou répondre à des questions courantes comme : Comment changer mon avatar ? ou encore Comment fonctionne le système de points XP ?, etc ..."),
     ]
 
     added = 0

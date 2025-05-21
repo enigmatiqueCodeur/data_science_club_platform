@@ -11,6 +11,9 @@ from forms import CategoryForm
 from models.event import Event, EventAttendance
 from forms import EventForm  
 from datetime import datetime
+from models.category import Category  
+from forms import ResourceCategoryForm
+
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -160,3 +163,58 @@ def delete_event(event_id):
     db.session.commit()
     flash('Événement supprimé!', 'warning')
     return redirect(url_for('admin.manage_events'))
+
+
+@bp.route('/resource-categories')
+@login_required
+@admin_required
+def manage_resource_categories():
+    cats = Category.query.order_by(Category.name).all()
+    return render_template(
+        'admin/resource_categories.html',
+        categories=cats
+    )
+
+@bp.route('/resource-categories/new', methods=['GET','POST'])
+@login_required
+@admin_required
+def new_resource_category():
+    form = ResourceCategoryForm()
+    if form.validate_on_submit():
+        c = Category(name=form.name.data)
+        db.session.add(c)
+        db.session.commit()
+        flash("Catégorie créée.", "success")
+        return redirect(url_for('admin.manage_resource_categories'))
+    return render_template(
+        'admin/edit_resource_category.html',
+        form=form,
+        title="Nouvelle catégorie"
+    )
+
+@bp.route('/resource-categories/<int:cat_id>/edit', methods=['GET','POST'])
+@login_required
+@admin_required
+def edit_resource_category(cat_id):
+    c = Category.query.get_or_404(cat_id)
+    form = ResourceCategoryForm(obj=c)
+    if form.validate_on_submit():
+        c.name = form.name.data
+        db.session.commit()
+        flash("Catégorie mise à jour.", "success")
+        return redirect(url_for('admin.manage_resource_categories'))
+    return render_template(
+        'admin/edit_resource_category.html',
+        form=form,
+        title="Modifier catégorie"
+    )
+
+@bp.route('/resource-categories/<int:cat_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_resource_category(cat_id):
+    c = Category.query.get_or_404(cat_id)
+    db.session.delete(c)
+    db.session.commit()
+    flash("Catégorie supprimée.", "info")
+    return redirect(url_for('admin.manage_resource_categories'))

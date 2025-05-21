@@ -1,20 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-  <h2 class="mb-4">Dashboard</h2>
+{% block head_scripts %}
+  {{ super() }}
+  <!-- Si besoin d’AOS spécifiquement ici -->
+{% endblock %}
 
-  <!-- KPI Cards -->
-  <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4" data-aos="fade-down">Mon Tableau de Bord</h2>
+
+  <!-- === KPI Cards === -->
+  <div class="row g-4 mb-5">
     {% for card in kpi_cards %}
-      <div class="col">
-        <div class="card h-100 shadow-sm">
+      <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="{{ loop.index0*50 }}">
+        <div class="card h-100 border-0 shadow-sm">
           <div class="card-body text-center">
-            <h5 class="card-title">{{ card.title }}</h5>
-            <p class="card-text fs-4">
+            <!-- Icône générique, à adapter -->
+            <div class="mb-2">
               {% if card.title == 'Points XP' %}
-                <span class="xp-points">{{ card.value }}</span> <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star fa-2x text-warning"></i>
+              {% elif 'Vues' in card.title %}
+                <i class="fas fa-eye fa-2x text-primary"></i>
+              {% elif 'Téléchargements' in card.title %}
+                <i class="fas fa-download fa-2x text-success"></i>
+              {% elif 'Ressources proposées' in card.title %}
+                <i class="fas fa-upload fa-2x text-info"></i>
+              {% elif 'Ressources validées' in card.title %}
+                <i class="fas fa-check-circle fa-2x text-success"></i>
+              {% else %}
+                <i class="fas fa-chart-bar fa-2x text-secondary"></i>
+              {% endif %}
+            </div>
+            <h6 class="card-title text-muted">{{ card.title }}</h6>
+            <p class="card-text fs-4 fw-bold">
+              {% if card.title == 'Points XP' %}
+                <span class="xp-points">{{ card.value }}</span>
               {% else %}
                 {{ card.value }}
               {% endif %}
@@ -25,33 +46,35 @@
     {% endfor %}
   </div>
 
-  <!-- Charts -->
-  <div class="row">
-    <!-- Activity Chart -->
-    <div class="col-lg-6 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Activité sur 7 jours</h5>
-          <canvas id="activityChart"></canvas>
+  <!-- === Charts Grid === -->
+  <div class="row gx-4 gy-4">
+    <!-- 7-day Activity + Downloads + Durée avg -->
+    <div class="col-lg-6" data-aos="fade-right">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title mb-3">Activité sur 7 jours</h5>
+          <div class="flex-fill">
+            <canvas id="activityChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
-    <!-- Contribution Pie -->
-    <div class="col-lg-6 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Contributions</h5>
-          <canvas id="contribPie"></canvas>
+    <!-- Contrib Pie -->
+    <div class="col-lg-6" data-aos="fade-left">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title mb-3">Contributions</h5>
+          <div class="flex-fill d-flex justify-content-center align-items-center">
+            <canvas id="contribPie" style="max-width: 300px;"></canvas>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Category Distribution -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card shadow-sm">
+    <!-- Category Distribution -->
+    <div class="col-12" data-aos="fade-up">
+      <div class="card border-0 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Répartition par catégorie</h5>
+          <h5 class="card-title mb-3">Répartition par catégorie</h5>
           <canvas id="catDistBar"></canvas>
         </div>
       </div>
@@ -62,6 +85,6 @@
 
 {% block body_scripts %}
   {{ super() }}
-  <!-- Chart.js est déjà importé dans base.html -->
+  <!-- Votre script de génération de charts -->
   <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

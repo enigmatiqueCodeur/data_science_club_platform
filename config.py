@@ -26,6 +26,7 @@ class Config:
 
     # Uploads
     UPLOAD_FOLDER = os.path.join(basedir, 'uploads', 'resources')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     ALLOWED_EXTENSIONS = {
     'pdf', 'docx', 'mp4', 'mov', 'csv', 'tsv', 'xlsx', 'ipynb',
     'dta', 'sav', 'sas7bdat', 'rdata', 'json','xml', 'txt',

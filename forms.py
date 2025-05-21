@@ -68,11 +68,11 @@ class EditPostForm(FlaskForm):
 class EventForm(FlaskForm):
     title = StringField('Titre', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    start_time = DateTimeField('Début', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
-    end_time = DateTimeField('Fin', format='%Y-%m-%d %H:%M', validators=[Optional()])
+    start_time = DateTimeField('Début (format: AAAA-MM-JJ HH:MM)', format='%Y-%m-%d %H:%M', validators=[DataRequired()])
+    end_time = DateTimeField('Fin (optionnel)', format='%Y-%m-%d %H:%M', validators=[Optional()])
     location = StringField('Lieu')
     is_online = BooleanField('Événement en ligne')
-    max_attendees = IntegerField('Nombre max de participants', validators=[Optional()])
+    max_attendees = IntegerField('Nombre max de participants (optionnel)', validators=[Optional()])
 
 class ForgotPasswordForm(FlaskForm):
     email = StringField("Adresse email", validators=[DataRequired(), Email()])
@@ -117,3 +117,10 @@ class ContactForm(FlaskForm):
     subject = StringField("Sujet", validators=[DataRequired(), Length(max=128)])
     message = TextAreaField("Message", validators=[DataRequired(), Length(max=2000)])
     submit  = SubmitField("Envoyer")
+
+class ResourceCategoryForm(FlaskForm):
+    name = StringField(
+        'Nom de la catégorie', 
+        validators=[DataRequired(), Length(max=100)]
+    )
+    submit = SubmitField('Enregistrer')
